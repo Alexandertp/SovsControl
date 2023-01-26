@@ -8,11 +8,11 @@ public class ActuallyNotAWebAPI : WebAPI {
         var generatedNumber = await Task.Run(() => new Random().Next());
         Console.WriteLine("Jeg er blevet tvunget til at lave det her tal " + generatedNumber);
         return generatedNumber;
-        
+
     }
     public async Task sendNumber(int i) {
         Console.WriteLine("Jeg fik en " + i);
-        
+
     }
 }
 
@@ -24,10 +24,25 @@ public class NumberFlip {
     }
 
     public async Task Nummersmider() {
-        var numbers = new[] { await webapi.getNumber(), await webapi.getNumber(), await webapi.getNumber(), await webapi.getNumber(), };
+        var numbersTasks = new[] {
+            webapi.getNumber(),
+            webapi.getNumber(),
+            webapi.getNumber(),
+            webapi.getNumber(),
+        };
 
-        await Parallel.ForEachAsync(numbers, async (number,pik) => await webapi.sendNumber(MakeHashNumber(number)));
-    
+        var numbers = await Task.WhenAll(numbersTasks);
+
+        // var numbers = new[] {
+        //     await webapi.getNumber(),
+        //     await webapi.getNumber(),
+        //     await webapi.getNumber(),
+        //     await webapi.getNumber(),
+        // };
+
+        await Parallel.ForEachAsync(numbers, async (number, _) =>
+            await webapi.sendNumber(MakeHashNumber(number)));
+
     }
     private int MakeHashNumber(int value) {
         int k = 0;
@@ -35,7 +50,6 @@ public class NumberFlip {
             k++;
             k %= 10;
         }
-
         return k;
     }
 }
